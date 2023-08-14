@@ -97,7 +97,6 @@ class TagManager(models.Manager):
     def by_title(self, title_name):
         return self.filter(title=title_name)
 
-    #
     def popular(self):
         return self.order_by('-question_count')[:20]
 
@@ -124,20 +123,14 @@ class QuestionManager(models.Manager):
 
     def by_tag(self, tag_title):
         return self.filter(tags__title=tag_title)
-        # return Tag.objects.by_title(tag_title).first().question__set.all()
-#
-#
+
+
 class Question(models.Model):
-    user = models.ForeignKey(
-        User,
-        on_delete=models.CASCADE,
-    )
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
     tags = models.ManyToManyField('Tag')
-    title = models.CharField(max_length=100, verbose_name="Название",
-                             unique=True)
+    title = models.CharField(max_length=100, verbose_name="Название", unique=True)
     text = models.TextField(verbose_name="Текст")
-    creation_date = models.DateField(
-        auto_now_add=True, verbose_name="Дата создания")
+    creation_date = models.DateField(auto_now_add=True, verbose_name="Дата создания")
     like_count = models.IntegerField(default=0, verbose_name='Кол-во лайков')
     answer_count = models.IntegerField(default=0, verbose_name='Кол-во ответов')
     objects = QuestionManager()

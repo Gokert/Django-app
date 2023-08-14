@@ -17,9 +17,10 @@ def paginate_objects(objects, page, objects_per_page=20):
 
 @require_http_methods(['GET'])
 def new_questions(request):
+    questions = paginate_objects(Question.objects.new(), request.GET.get('page'), 11)
+
     return render(request, 'new_questions.html', {
-        'questions': paginate_objects(Question.objects.new(),
-                                      request.GET.get('page'), 11),
+        'questions': questions,
         'popular_tags': Tag.objects.all()[:20]
 
     })
@@ -51,15 +52,13 @@ def question_page(request, qid):
 
     if request.method == 'GET':
         form = AnswerForm()
-        print(request.method)
     else:
         form = AnswerForm(request.POST)
 
         if form.is_valid():
-            answer = form.save(request.user, question)
+            form.save(request.user, question)
         else:
             messages.error(request, 'something went wrong')
-        print("POST")
 
     return render(request, 'question_page.html', {
         'question': question,
@@ -68,6 +67,7 @@ def question_page(request, qid):
         'form': form
     })
 
+
 @require_http_methods(['POST', 'GET'])
 @login_required
 def logout(request):
@@ -75,25 +75,23 @@ def logout(request):
     prev_page = request.META.get("HTTP_REFERER")
     if prev_page is not None:
         return redirect(prev_page)
-    return redirect("/")  # TODO нужны правильный редиректы (на предыдущую страницу)
+    return redirect("/")
+
 
 @require_http_methods(['POST', 'GET'])
 def ask_page(request):
-    form = None
     if request.method == 'GET':
         form = QuestionForm()
     else:
         form = QuestionForm(request.POST)
         if form.is_valid():
-            question = form.save(request.user)
+            form.save(request.user)
             return redirect('/')
         else:
             messages.error(request, 'something went wrong')
             return redirect('ask')
 
-
-    ctx = {"form": form}
-    return render(request, 'ask_page.html', ctx)
+    return render(request, 'ask_page.html', {"form": form})
 
 
 @require_http_methods(['POST', 'GET'])
@@ -110,11 +108,10 @@ def login_page(request):
                 return redirect("/")
             else:
                 messages.error(request, 'invalid user or password')
-                #return redirect(request.POST.get('next', '/'))
         else:
-            print("NO VALID")
-    ctx = {'form': form}
-    return render(request, 'login_page.html', ctx)
+            messages.error(request, 'no valid')
+
+    return render(request, 'login_page.html', {'form': form})
 
 
 @require_http_methods(['POST', 'GET'])
@@ -128,13 +125,11 @@ def signup_page(request):
             profile = setting_form.save()
             avatar_form.save(profile)
             auth.login(request, profile.user)
-            ctx = {'form': setting_form}
-            return render(request, 'question_page.html', ctx)
+            return render(request, 'question_page.html', {'form': setting_form})
         else:
             messages.error(request, 'invalid inputs')
 
-    ctx = {'form': setting_form}
-    return render(request, 'signup_page.html', ctx)
+    return render(request, 'signup_page.html', {'form': setting_form})
 
 
 @require_http_methods(['POST', 'GET'])
@@ -159,3 +154,8 @@ def settings_page(request):
     }
 
     return render(request, 'settings_page.html', content)
+
+def add_info_about_question(questions):
+    for question in questions:
+        question_item = question
+        question_item['count_answers'] = Answer.objects.get_count_answers_for_question(question.id)

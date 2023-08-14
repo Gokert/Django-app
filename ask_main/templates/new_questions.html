@@ -3,7 +3,7 @@
 {% load static %}
 
 {% block content %}
-<legend id='page-legend'>New questions</legend>
+{% include 'inc/hot_new_panel.html' %}
 {% for question in questions %}
 {% include 'inc/one_question.html' %}
 {% endfor %}

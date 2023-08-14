@@ -2,7 +2,11 @@
 
 <div class="row question-box">
     <div class="col-3">
-        <img src="{% static "img/img_200.png" %}" class="question-img rounded"></img>
+        {% if question.user.avatar.url %}
+            <img src="{{ question.user.objects.get_prof_by_user_id }}" class="question-img rounded">
+        {% else %}
+            <img src="/media/HUI.png" class="question-img rounded">
+        {% endif %}
         {% include 'inc/vote_button.html' %}
     </div>
     <div class="col-9">
@@ -10,7 +14,7 @@
         <div class="question-text">{{ question.text|truncatechars:270}}</div>
         <div class="row question-links">
             <div class="col question-answers">
-                <a href="/question/{{ question.id }}/">answers({{ question.answer_count }})</a>
+                <a href="/question/{{ question.id }}/">answers({{ question.answer_count }} {{question.user.avatar}} )</a>
             </div>
             <div class="col question-tags"> 
                 Tags:

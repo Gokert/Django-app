@@ -1,7 +1,8 @@
 from django import forms
-from app.models import Profile, Question, Answer
+from app.models import Profile, Question, Answer, Tag
 import app.models
 from django.contrib.auth.models import User
+
 
 class LoginForm(forms.Form):
     username = forms.CharField()
@@ -148,18 +149,26 @@ class QuestionForm(forms.ModelForm):
             self.add_error(
                 'text', 'The minimum length of the text of the question text is 5')
 
-        def save(self, profile):
-            question = super().save(commit=False)
-            question.user = profile
-            question.save()
-            tags = self.cleaned_data['tags'].split()
+        title = Question.objects.filter(
+            title=self.cleaned_data['title']).count()
 
-            for tag in tags:
-                new = Tag.objects.get_or_create(name=tag)
-                question.tags.add(new[0].id)
-            question.save()
+        if title:
+            self.add_error(
+                'title', 'A user with such an title has already been registered')
 
-            return question
+
+    def save(self, profile):
+        question = super().save(commit=False)
+        question.user = profile
+        question.save()
+        tags = self.cleaned_data['tags'].split()
+
+        for tag in tags:
+            new = Tag.objects.get_or_create(title=tag)
+            question.tags.add(new[0].id)
+        question.save()
+
+        return question
 
 
 class AnswerForm(forms.ModelForm):
@@ -177,14 +186,19 @@ class AnswerForm(forms.ModelForm):
         self.fields['text'].required = False
 
     def clean(self):
-        if 'text' not in self.cleaned_data.keys() or len(self.cleaned_data['text']) < 5:
+        if 'text' not in self.cleaned_data.keys() or len(self.cleaned_data['text']) < 1:
             self.add_error(
-                'text', 'The minimum length of the text of the question text is 5')
+                'text', 'The minimum length of the text of the question text is 1')
 
     def save(self, profile, question):
         answer = super().save(commit=False)
         answer.user = profile
         answer.question = question
+
+        question.answer_count = Answer.objects.filter(question=question).count()
+        print(question.answer_count)
+        question.save()
+
         answer.save()
 
         return answer
