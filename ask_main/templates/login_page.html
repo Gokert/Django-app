@@ -1,0 +1,15 @@
+{% extends 'inc/base.html' %}
+
+{% load static %}
+{% load bootstrap4 %}
+
+
+{% block content %}
+    <legend>Log In</legend>
+    <div class="col-9">
+        <form method="POST" action='/login/' enctype="">
+            {% include 'inc/form.html' %}
+        </form>
+        <a href='/signup'>Don't have an account? Create new one!</a>
+    </div>
+{% endblock content %}

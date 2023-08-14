@@ -1,0 +1,20 @@
+{% load static %}
+
+<div class="row full-question-box">
+    <div class="col-3">
+        <img src="{% static "img/img_200.png" %}" class="question-img rounded"></img>
+        {% include 'inc/vote_button.html' %}
+    </div>
+    <div class="col-9">
+		<div class="question-title">{{ question.title }}</div>
+        <div class="question-text">{{ question.text }}</div>
+        <div class="row question-links">
+            <div class="col question-tags">
+                Tags:
+                {% for tag in question.tags.all %}
+                <a href="{% url 'tag' tag.title %}" class="question-tag">{{ tag.title }}</a>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+</div>

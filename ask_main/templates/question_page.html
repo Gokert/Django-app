@@ -1,0 +1,26 @@
+{% extends 'inc/base.html' %}
+
+{% load static %}
+{% load bootstrap4 %}
+
+{% block content %}
+<legend>Answers</legend>
+{% include 'inc/full_question.html' %}
+<hr>
+{% for answer in questions %}
+{% include 'inc/one_answer.html' %}
+{% endfor %}
+<hr>
+{% include 'inc/pagination.html' %}
+<form method="POST" action="" enctype="">
+    {% csrf_token %}
+    <div class="form-group">
+        <label for="questionText">Text</label>
+        {% bootstrap_form form %}
+    </div>
+    <button type="submit" class="btn btn-primary">Answer</button>
+</form>
+<br>
+<br> 
+<br>
+{% endblock content %}

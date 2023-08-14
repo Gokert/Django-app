@@ -1,0 +1,12 @@
+{% extends 'inc/base.html' %}
+
+{% load static %}
+{% block content %}
+    <legend>Sign up</legend>
+    <div class="col-9">
+        <form method="POST" action="/signup/" enctype="multipart/form-data">
+            {% include 'inc/form.html' %}
+        </form>
+        <a href='/login'>Already have an account? Log in!</a>
+    </div>
+{% endblock content %}

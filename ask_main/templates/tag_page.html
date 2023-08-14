@@ -1,0 +1,13 @@
+{% extends 'inc/base.html' %}
+
+{% load static %}
+
+{% block content %}
+<legend id='page-legend'>Tag: {{ tag_title }}</legend>
+{% for question in questions %}
+{% include 'inc/one_question.html' %}
+{% endfor %}
+{% include 'inc/pagination.html' %}
+{% endblock content %}
+
+

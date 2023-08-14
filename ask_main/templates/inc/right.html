@@ -1,0 +1,38 @@
+{% load static %}
+
+<div class="popular-tags-block">
+	<div class="popular-tags-title">
+		Popular taaags
+	</div>
+	<div class="popular-tags">
+	{% for tag in popular_tags %}
+		<a href="{% url 'tag' tag.title %}">{{ tag.title }}</a>
+	{% endfor %}
+	<!--
+		<a href="#" class=" tag" style="color: green; font-size: 15px;">Not Python</a>
+		<a href="#" class=" tag" style="color: orange; font-size: 25px">CPP</a>
+		<a href="#" class=" tag" style="color: blue; font-size: 13px;">Yandex</a>
+		<a href="#" class=" tag" style="color: black; font-size: 16px;">Mail</a>
+		<a href="#" class=" tag" style="color: orange; font-size: 25px">World</a>
+		<a href="#" class=" tag" style="color: blue; font-size: 13px;">Cats</a>
+		<a href="#" class=" tag" style="color: black; font-size: 16px;">Dogs</a>
+		<a href="#" class=" tag" style="color: red; font-size: 20px;">Ruby</a>
+		<a href="#" class=" tag" style="color: green; font-size: 15px;">God</a>
+		<a href="#" class=" tag" style="color: blue; font-size: 13px;">Google</a>
+		<a href="#" class=" tag" style="color: black; font-size: 16px;">Amazon</a>
+		<a href="#" class=" tag" style="color: orange; font-size: 25px">Sleep</a>
+		<a href="#" class=" tag" style="color: blue; font-size: 13px;">42</a>
+		<a href="#" class=" tag" style="color: black; font-size: 16px;">Матрешки</a>
+-->
+	</div>
+</div>
+<div class="best-members-block">
+	<div class="best-members-title">
+		Best members
+	</div>
+	<div class="best-members">
+		<a href="#">Ozzy Osborne</a>
+		<a href="#">Aleshe4Ka_CO01</a>
+		<a href="#">CODING_MASTER_3000</a>
+	</div>
+</div>

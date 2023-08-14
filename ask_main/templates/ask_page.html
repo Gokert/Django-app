@@ -1,0 +1,14 @@
+{% extends 'inc/base.html' %}
+
+{% load static %}
+{% load bootstrap4 %}
+
+{% block content %}
+
+    <legend>New question</legend>
+    <div class="col-9">
+        <form method='POST' action="/ask/" enctype=''>
+            {% include 'inc/form.html' %}
+        </form>
+    </div>
+{% endblock content %}

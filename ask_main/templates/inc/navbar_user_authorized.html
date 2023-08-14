@@ -1,0 +1,15 @@
+{% load static %}
+
+<div>
+    <ul class="navbar-nav">
+        <li class="nav-item avatar">
+
+            <img src='{{ request.user.profile.avatar.url }}' class="avatar_image rounded" alt=""/>
+        </li>
+        <li class="nav-item active">
+            <a class="nav-link" href="#">{{ user.username }}</a>
+            <a class="account-actions" href="{% url 'settings' %}">settings </a>
+            <a class="account-actions" href="{% url 'logout' %}">log out </a>
+        </li>
+    </ul>
+</div>

@@ -1,0 +1,115 @@
+main > .container {
+  padding: 60px 15px 0;
+}
+
+.footer {
+    position: fixed;
+    bottom: 0;
+    width: 100%;
+    height: 60px; /* Set the fixed height of the footer here */
+    line-height: 60px; /* Vertically center the text there */
+    background-color: #f5f5f5;
+  }
+
+.account-actions {
+    text-decoration: underline;
+    margin-left: 5px;
+}
+
+code {
+  font-size: 80%;
+}
+
+.question-img {
+    max-width: 100%;
+}
+
+legend {
+    margin-top: 50px !important;
+}
+
+.current-avatar {
+    height: 100px;
+}
+
+#upper-element {
+    margin-top: 50px !important;
+}
+
+.question-box {
+    margin-top: 30px;
+    border: 1px solid grey;
+    border-radius: 10px;
+    padding: 20px;
+}
+
+.full-question-box {
+    padding: 20px;
+}
+
+.question-title {
+    font-size: 20px;
+    font-weight: bold;
+}
+
+.like-counter {
+    margin: 10px 10% 0 10%;
+    width: 80%;
+    padding: 0;
+    text-align: center;
+}
+
+.like-count {
+    color: #007bff;
+    border-color: #007bff;
+    display: inline-block;
+    font-weight: 400;
+    text-align: center;
+    vertical-align: middle;
+    user-select: none;
+    padding: .375rem .75rem;
+    font-size: 1rem;
+    line-height: 1.5;
+    margin: 0;
+}
+
+.popular-tags-title {
+    font-size: 20px;
+    font-weight: bold;
+    margin-top: 40px;
+}
+
+.best-members-title {
+    font-size: 20px;
+    font-weight: bold;
+    margin-top: 20px;
+}
+
+.best-member {
+    margin-right: 7px;
+}
+
+.question-links {
+    margin-top: 30px;
+}
+
+.page-numbers {
+    margin: 30px 0 50% 50%;
+}
+
+.avatar_image {
+    max-width: 50px;
+    margin: 10px;
+}
+
+.new-question-title {
+    margin-top: 50px;
+}
+
+.ask-btn {
+    margin-top: 20px;
+}
+
+.question-part {
+    margin-top: 20px;
+}
