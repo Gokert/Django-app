@@ -3,7 +3,7 @@
 <div class="row question-box">
     <div class="col-3">
         {% if question.user.avatar.url %}
-            <img src="{{ question.user.objects.get_prof_by_user_id }}" class="question-img rounded">
+            <img src="{{ question.user.avatar.url }}" class="question-img rounded">
         {% else %}
             <img src="/media/HUI.png" class="question-img rounded">
         {% endif %}
@@ -14,7 +14,7 @@
         <div class="question-text">{{ question.text|truncatechars:270}}</div>
         <div class="row question-links">
             <div class="col question-answers">
-                <a href="/question/{{ question.id }}/">answers({{ question.answer_count }} {{question.user.avatar}} )</a>
+                <a href="/question/{{ question.id }}/">answers({{ question.answer_count }})</a>
             </div>
             <div class="col question-tags"> 
                 Tags:

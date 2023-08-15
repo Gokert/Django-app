@@ -31,6 +31,8 @@ urlpatterns = [
     path('logout/', views.logout, name='logout'),
     path('signup/', views.signup_page, name='signup'),
     path('settings/', views.settings_page, name='settings'),
+    path('like/', views.like, name='like'),
+    path('dislike/', views.dislike, name='dislike'),
     path('', views.new_questions),
 ]
 

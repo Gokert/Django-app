@@ -2,7 +2,11 @@
 
 <div class="row question-box">
     <div class="col-3">
-        <img src="{% static 'img/img_200.png' %}" class="question-img rounded">
+        {% if question.user.avatar.url %}
+            <img src="{{ answer.user.avatar.url }}" class="question-img rounded">
+        {% else %}
+            <img src="/media/HUI.png" class="question-img rounded">
+        {% endif %}
         {% include 'inc/vote_button.html' %}
         <form class="like-counter">  
             <input type="checkbox" class="form-check-input" id="isCorrect{{ answer.id }}">

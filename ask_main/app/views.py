@@ -1,4 +1,5 @@
-from django.http import HttpResponseRedirect
+import requests
+from django.http import HttpResponseRedirect, JsonResponse
 from django.shortcuts import render, redirect, reverse
 from django.core.paginator import Paginator
 from django.contrib import messages
@@ -56,7 +57,7 @@ def question_page(request, qid):
         form = AnswerForm(request.POST)
 
         if form.is_valid():
-            form.save(request.user, question)
+            form.save(request.user.profile, question)
         else:
             messages.error(request, 'something went wrong')
 
@@ -85,7 +86,7 @@ def ask_page(request):
     else:
         form = QuestionForm(request.POST)
         if form.is_valid():
-            form.save(request.user)
+            form.save(request.user.profile)
             return redirect('/')
         else:
             messages.error(request, 'something went wrong')
@@ -155,7 +156,187 @@ def settings_page(request):
 
     return render(request, 'settings_page.html', content)
 
-def add_info_about_question(questions):
-    for question in questions:
-        question_item = question
-        question_item['count_answers'] = Answer.objects.get_count_answers_for_question(question.id)
+# @login_required(login_url="login", redirect_field_name="continue")
+@require_http_methods(['POST', 'GET'])
+def like(request):
+    messages = []
+
+    if request.POST['essence'] == 'question':
+        question = Question.objects.get_question(request.POST.get('question_id'))
+
+        if not request.user.is_authenticated:
+            messages.append('To like question, you need to log in')
+        elif Question.objects.is_question_from_this_user(question.id, request.user.profile.id):
+            messages.append("You can't like your own question")
+        elif LikeQuestion.objects.filter(question_id=question.id, from_user_id=request.user.profile.id).exists():
+            LikeQuestion.objects.filter(
+                question_id=question.id, from_user_id=request.user.profile.id).delete()
+            question.like_count -= 1
+            question.save()
+            messages.append("Your like has been removed")
+        elif DislikeQuestion.objects.filter(question_id=question.id, from_user_id=request.user.profile.id).exists():
+            DislikeQuestion.objects.filter(
+                question_id=question.id, from_user_id=request.user.profile.id).delete()
+            messages.append("Your dislike has been removed and like is added")
+            like = LikeQuestion.objects.create(
+                question=question, from_user=request.user.profile)
+            question.like_count += 2
+            question.save()
+            like.save()
+        else:
+            messages.append("You liked this question")
+            like = LikeQuestion.objects.create(
+                question=question, from_user=request.user.profile)
+            question.like_count += 1
+            question.save()
+            like.save()
+
+        print(messages)
+        return JsonResponse({
+            'like_count': question.like_count,
+            'messages': messages
+        })
+    else:
+        answer = Answer.objects.get_answer(request.POST['id'])
+
+        if not request.user.is_authenticated:
+            messages.append('To like answer, you need to log in')
+        elif Answer.objects.is_answer_from_this_user(answer.id, request.user.profile.id):
+            messages.append("You can't like your own answer")
+        elif LikeAnswer.objects.filter(answer_id=answer.id, from_user_id=request.user.profile.id).exists():
+            LikeAnswer.objects.filter(
+                answer_id=answer.id, from_user_id=request.user.profile.id).delete()
+            answer.like_count -= 1
+            answer.save()
+            messages.append("Your like has been removed")
+        elif DislikeAnswer.objects.filter(answer_id=answer.id, from_user_id=request.user.profile.id).exists():
+            DislikeAnswer.objects.filter(
+                answer_id=answer.id, from_user_id=request.user.profile.id).delete()
+            messages.append("Your dislike has been removed and like is added")
+            like = LikeAnswer.objects.create(
+                answer=answer, from_user=request.user.profile)
+            answer.like_count += 2
+            answer.save()
+            like.save()
+        else:
+            messages.append("You liked this answer")
+            like = LikeAnswer.objects.create(
+                answer=answer, from_user=request.user.profile)
+            answer.like_count += 1
+            answer.save()
+            like.save()
+
+        return JsonResponse({
+            'like_count': answer.like_count,
+            'messages': messages
+        })
+
+
+@require_http_methods(['POST'])
+def dislike(request):
+    messages = []
+
+    if request.POST['essence'] == 'question':
+        question = Question.objects.get_question(request.POST.get('question_id'))
+
+        if not request.user.is_authenticated:
+            messages.append('To dislike question, you need to log in')
+        elif Question.objects.is_question_from_this_user(question.id, request.user.profile.id):
+            messages.append("You can't dislike your own question")
+        elif DislikeQuestion.objects.filter(question_id=question.id, from_user_id=request.user.profile.id).exists():
+            DislikeQuestion.objects.filter(
+                question_id=question.id, from_user_id=request.user.profile.id).delete()
+            question.raiting += 1
+            question.save()
+            messages.append("Your dislike has been removed")
+        elif LikeQuestion.objects.filter(question_id=question.id, from_user_id=request.user.profile.id).exists():
+            LikeQuestion.objects.filter(
+                question_id=question.id, from_user_id=request.user.profile.id).delete()
+            messages.append("Your like has been removed and dislike is added")
+            dislike = DislikeQuestion.objects.create(
+                question=question, from_user=request.user.profile)
+            question.like_count -= 2
+            question.save()
+            dislike.save()
+        else:
+            messages.append("You disliked this question")
+            dislike = DislikeQuestion.objects.create(
+                question=question, from_user=request.user.profile)
+            question.like_count -= 1
+            question.save()
+            dislike.save()
+        print(messages)
+        return JsonResponse({
+            'like_count': question.like_count,
+            'messages': messages
+        })
+    else:
+        answer = Answer.objects.get_answer(request.POST['id'])
+
+        if not request.user.is_authenticated:
+            messages.append('To dislike answer, you need to log in')
+        elif Answer.objects.is_answer_from_this_user(answer.id, request.user.profile.id):
+            messages.append("You can't dislike your own answer")
+        elif DislikeAnswer.objects.filter(answer_id=answer.id, from_user_id=request.user.profile.id).exists():
+            DislikeAnswer.objects.filter(
+                answer_id=answer.id, from_user_id=request.user.profile.id).delete()
+            answer.like_count += 1
+            answer.save()
+            messages.append("Your dislike has been removed")
+        elif LikeAnswer.objects.filter(answer_id=answer.id, from_user_id=request.user.profile.id).exists():
+            LikeAnswer.objects.filter(
+                answer_id=answer.id, from_user_id=request.user.profile.id).delete()
+            messages.append("Your like has been removed and dislike is added")
+            like = DislikeAnswer.objects.create(
+                answer=answer, from_user=request.user.profile)
+            answer.like_count -= 2
+            answer.save()
+            like.save()
+        else:
+            messages.append("You disliked this answer")
+            like = DislikeAnswer.objects.create(
+                answer=answer, from_user=request.user.profile)
+            answer.like_count -= 1
+            answer.save()
+            like.save()
+
+        return JsonResponse({
+            'like_count': answer.like_count,
+            'messages': messages
+        })
+
+
+@require_http_methods(['POST', 'GET'])
+def correct_answer(request):
+    prev_correct_id = None
+    answer = models.Answer.objects.get_answer(request.POST['answer_id'])
+    messages = []
+
+    if not answer.is_correct:
+        question = models.Question.objects.get_question(id=answer.question_id)
+        prev_correct = models.Answer.objects.get_correct_answer_for_question(
+            question_id=question.id)
+
+        if prev_correct:
+            prev_correct_id = prev_correct.id
+            prev_correct.is_correct = False
+            prev_correct.save()
+            messages.append('The correct answer has been changed')
+        else:
+            messages.append('The answer is marked as correct')
+
+        answer.is_correct = True
+    else:
+        answer.is_correct = False
+        messages.append('The mark of the correct answer has been removed')
+
+    answer.save()
+
+    print(prev_correct_id)
+
+    return JsonResponse({
+        'status': 'ok',
+        'status': json.dumps(answer.is_correct),
+        'prev_correct': json.dumps(prev_correct_id),
+        'messages': messages,
+    })

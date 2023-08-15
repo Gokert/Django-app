@@ -195,10 +195,9 @@ class AnswerForm(forms.ModelForm):
         answer.user = profile
         answer.question = question
 
+        answer.save()
         question.answer_count = Answer.objects.filter(question=question).count()
         print(question.answer_count)
         question.save()
-
-        answer.save()
 
         return answer
