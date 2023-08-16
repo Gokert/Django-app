@@ -2,7 +2,7 @@
 
 <div class="popular-tags-block">
 	<div class="popular-tags-title">
-		Popular taaags
+		Popular tags
 	</div>
 	<div class="popular-tags">
 	{% for tag in popular_tags %}
@@ -16,8 +16,8 @@
 		Best members
 	</div>
 	<div class="best-members">
-		<a href="#">Ozzy Osborne</a>
-		<a href="#">Aleshe4Ka_CO01</a>
-		<a href="#">CODING_MASTER_3000</a>
+		{% for user in popular_users %}
+		<a href="#">{{user.user.username}}</a>
+		{% endfor %}
 	</div>
 </div>

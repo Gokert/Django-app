@@ -7,6 +7,7 @@ class ProfileManager(models.Manager):
     def get_top_users(self, count=5):
         return self.annotate(answer_count=Count('answer')).order_by('-answer_count')[:count]
 
+
     def get_profile_by_id(self, id):
         try:
             return self.annotate(question_count=Count('question', distinct=True), answer_count=Count('answer', distinct=True)).get(id=id)
@@ -46,15 +47,15 @@ class TagManager(models.Manager):
 
 class Tag(models.Model):
     title = models.CharField(max_length=100, unique=True,
-                             verbose_name="Название")
+                             verbose_name="Name")
     objects = TagManager()
 
     def __str__(self):
         return self.title
 
     class Meta:
-        verbose_name = "Тег"
-        verbose_name_plural = "Теги"
+        verbose_name = "Tag"
+        verbose_name_plural = "Tags"
 
 
 class QuestionManager(models.Manager):
@@ -90,19 +91,19 @@ class QuestionManager(models.Manager):
 class Question(models.Model):
     user = models.ForeignKey(Profile, on_delete=models.CASCADE)
     tags = models.ManyToManyField('Tag')
-    title = models.CharField(max_length=100, verbose_name="Название", unique=True)
-    text = models.TextField(verbose_name="Текст")
-    creation_date = models.DateField(auto_now_add=True, verbose_name="Дата создания")
-    like_count = models.IntegerField(default=0, verbose_name='Кол-во лайков')
-    answer_count = models.IntegerField(default=0, verbose_name='Кол-во ответов')
+    title = models.CharField(max_length=100, verbose_name="Name", unique=True)
+    text = models.TextField(verbose_name="Text")
+    creation_date = models.DateField(auto_now_add=True, verbose_name="Date of creation")
+    like_count = models.IntegerField(default=0, verbose_name='Number of likes')
+    answer_count = models.IntegerField(default=0, verbose_name='Number of answers')
     objects = QuestionManager()
 
     def __str__(self):
         return self.title
 
     class Meta:
-        verbose_name = "Вопрос"
-        verbose_name_plural = "Вопросы"
+        verbose_name = "Question"
+        verbose_name_plural = "Questions"
 
 class AnswerManager(models.Manager):
     def get_info_answers(self):
@@ -138,16 +139,16 @@ class Answer(models.Model):
         on_delete=models.CASCADE,
     )
     question = models.ForeignKey('Question', on_delete=models.CASCADE)
-    text = models.TextField("Текст")
+    text = models.TextField(verbose_name='Text')
     creation_date = models.DateField(
-        auto_now_add=True, verbose_name="Дата создания")
-    like_count = models.IntegerField(default=0, verbose_name='Кол-во лайков')
+        auto_now_add=True, verbose_name="Date of creation")
+    like_count = models.IntegerField(default=0, verbose_name='Number of likes')
     is_correct = models.BooleanField(default=False)
     objects = AnswerManager()
 
     class Meta:
-        verbose_name = "Ответ"
-        verbose_name_plural = "Ответы"
+        verbose_name = "Answer"
+        verbose_name_plural = "Answers"
 
 
 class LikeQuestion(models.Model):

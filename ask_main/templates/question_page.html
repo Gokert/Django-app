@@ -12,6 +12,7 @@
 {% endfor %}
 <hr>
 {% include 'inc/pagination.html' %}
+{% if request.user.is_authenticated %}
 <form method="POST" action="" enctype="">
     {% csrf_token %}
     <div class="form-group">
@@ -20,8 +21,7 @@
     </div>
     <button type="submit" class="btn btn-primary">Answer</button>
 </form>
-<br>
-<br> 
-<br>
+{% endif  %}
+
 
 {% endblock content %}

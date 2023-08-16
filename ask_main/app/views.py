@@ -1,7 +1,6 @@
-import requests
 import json
-from django.http import HttpResponseRedirect, JsonResponse
-from django.shortcuts import render, redirect, reverse
+from django.http import JsonResponse
+from django.shortcuts import render, redirect
 from django.core.paginator import Paginator
 from django.contrib import messages
 
@@ -23,7 +22,8 @@ def new_questions(request):
 
     return render(request, 'new_questions.html', {
         'questions': questions,
-        'popular_tags': Tag.objects.all()[:20]
+        'popular_tags': Tag.objects.all()[:20],
+        'popular_users': Profile.objects.get_top_users()
 
     })
 
@@ -31,15 +31,18 @@ def new_questions(request):
 def hot_questions(request):
     q = paginate_objects(Question.objects.hot(),
                          request.GET.get('page'), 11)
+
     return render(request, 'hot_questions.html', {
         'questions': q,
-        'popular_tags': Tag.objects.all()[:20]
+        'popular_tags': Tag.objects.all()[:20],
+        'popular_users': Profile.objects.get_top_users()
     })
 
 
 def tag_questions(request, t):
     q = paginate_objects(Question.objects.by_tag(t),
                          request.GET.get('page'), 11)
+
     return render(request, 'tag_page.html', {
         'tag_title': t,
         'questions': q,
@@ -49,7 +52,8 @@ def tag_questions(request, t):
 @require_http_methods(['GET', 'POST'])
 def question_page(request, qid):
     question = Question.objects.get(pk=qid)
-    answers = paginate_objects(Answer.objects.by_question(qid),
+    objects = Answer.objects.by_question(qid)
+    answers = paginate_objects(objects,
                                request.GET.get('page'), 5)
 
     if request.method == 'GET':
@@ -58,7 +62,8 @@ def question_page(request, qid):
         form = AnswerForm(request.POST)
 
         if form.is_valid():
-            form.save(request.user.profile, question)
+            answer = form.save(request.user.profile, question)
+            return redirect(f"{request.path}?page={request.GET.get('page')}#{answer.id}")
         else:
             messages.error(request, 'something went wrong')
 
