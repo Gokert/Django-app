@@ -142,6 +142,7 @@ class Answer(models.Model):
     creation_date = models.DateField(
         auto_now_add=True, verbose_name="Дата создания")
     like_count = models.IntegerField(default=0, verbose_name='Кол-во лайков')
+    is_correct = models.BooleanField(default=False)
     objects = AnswerManager()
 
     class Meta:

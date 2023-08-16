@@ -1,4 +1,5 @@
 import requests
+import json
 from django.http import HttpResponseRedirect, JsonResponse
 from django.shortcuts import render, redirect, reverse
 from django.core.paginator import Paginator
@@ -162,7 +163,7 @@ def like(request):
     messages = []
 
     if request.POST['essence'] == 'question':
-        question = Question.objects.get_question(request.POST.get('question_id'))
+        question = Question.objects.get_question(request.POST.get('id'))
 
         if not request.user.is_authenticated:
             messages.append('To like question, you need to log in')
@@ -235,9 +236,10 @@ def like(request):
 @require_http_methods(['POST'])
 def dislike(request):
     messages = []
+    print(request.POST)
 
     if request.POST['essence'] == 'question':
-        question = Question.objects.get_question(request.POST.get('question_id'))
+        question = Question.objects.get_question(request.POST.get('id'))
 
         if not request.user.is_authenticated:
             messages.append('To dislike question, you need to log in')
@@ -309,12 +311,12 @@ def dislike(request):
 @require_http_methods(['POST', 'GET'])
 def correct_answer(request):
     prev_correct_id = None
-    answer = models.Answer.objects.get_answer(request.POST['answer_id'])
+    answer = Answer.objects.get_answer(request.POST.get('id'))
     messages = []
 
     if not answer.is_correct:
-        question = models.Question.objects.get_question(id=answer.question_id)
-        prev_correct = models.Answer.objects.get_correct_answer_for_question(
+        question = Question.objects.get_question(id=answer.question_id)
+        prev_correct = Answer.objects.get_correct_answer_for_question(
             question_id=question.id)
 
         if prev_correct:

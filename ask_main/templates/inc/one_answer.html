@@ -8,9 +8,15 @@
             <img src="/media/HUI.png" class="question-img rounded">
         {% endif %}
         {% include 'inc/vote_button.html' %}
-        <form class="like-counter">  
-            <input type="checkbox" class="form-check-input" id="isCorrect{{ answer.id }}">
-            <label class="form-check-label" for="isCorrect{{ answer.id }}">Correct!</label>
+        <form class="like-counter">
+            {% if answer.is_correct %}
+            <input checked="checked" type="checkbox" class="checkinput" data-id="{{ answer.id }}">
+            <label class="form-check-label" data-for="{{ answer.id }}">Correct!</label>
+            {% elif request.user.profile.id == question.user.id %}
+            <input type="checkbox" class="checkinput" data-id="{{ answer.id }}">
+            <label class="form-check-label" data-for="{{ answer.id }}">Correct!</label>
+            {% endif %}
+
         </form>
     </div>
     <div class="col-9">

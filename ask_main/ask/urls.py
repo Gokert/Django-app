@@ -34,6 +34,7 @@ urlpatterns = [
     path('like/', views.like, name='like'),
     path('dislike/', views.dislike, name='dislike'),
     path('', views.new_questions),
+    path('correct_answer/', views.correct_answer, name='correct_answer'),
 ]
 
 if settings.DEBUG:
