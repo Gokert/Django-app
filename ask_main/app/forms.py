@@ -28,11 +28,11 @@ class RegistrationForm(forms.ModelForm):
 
         user.username = username
         user.email = email
-        user.avatar = avatar
 
         user.save()
         self.cleaned_data.pop('password_confirm')
         profile = Profile.objects.create(user=user)
+        profile.avatar = avatar
 
         if commit:
             profile.save()
@@ -67,41 +67,30 @@ class RegistrationForm(forms.ModelForm):
 
         return self.cleaned_data
 
-class AvatarForm(forms.ModelForm):
-    class Meta:
-        model = Profile
-        fields = ['avatar']
-        labels = {
-            'avatar': 'Avatar'
-        }
-
-    def save(self, profile):
-        profile.avatar = self.data['avatar']
-        profile.save()
-        return profile
-
-
 class SettingsForm(forms.ModelForm):
     username = forms.CharField()
     password = forms.CharField(widget=forms.PasswordInput())
     email = forms.CharField()
+    avatar = forms.ImageField(required=False)
 
 
     class Meta:
         model = User
-        fields = ['email', 'username', 'password']
+        fields = ['email', 'username', 'password', 'avatar']
 
     def __init__(self, user, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.curr_user = user
         self.fields['email'].widget.attrs['value'] = user.email
         self.fields['username'].widget.attrs['value'] = user.username
+        self.fields['avatar'].widget.attrs['value'] = user.profile.avatar
 
 
     def save(self):
         username = self.cleaned_data['username']
         password = self.cleaned_data['password']
         email = self.cleaned_data['email']
+        avatar = self.cleaned_data['avatar']
 
         if username != self.curr_user.username:
             self.curr_user.username = username
@@ -110,8 +99,37 @@ class SettingsForm(forms.ModelForm):
         if email != self.curr_user.email:
             self.curr_user.email = email
 
+        self.curr_user.profile.avatar = avatar
+
         self.curr_user.save()
         return self.curr_user.profile
+
+    def clean(self):
+        object = User.objects.filter(email=self.cleaned_data['email'])
+        email_count = object.count()
+
+        if email_count:
+            if object[0].email != self.cleaned_data['email']:
+                self.add_error(
+                    'email', 'A user with such an email has already been registered')
+
+        if len(self.cleaned_data['username']) < 4:
+            self.add_error(
+                'username', 'The minimum length of the username is 4')
+
+        object = User.objects.filter(username=self.cleaned_data['username'])
+
+        username_count = object.count()
+
+        if username_count:
+            if object[0].username != self.cleaned_data['username']:
+                self.add_error(
+                    'username', 'username count > 0')
+
+
+
+        return self.cleaned_data
+
 
 class QuestionForm(forms.ModelForm):
     tags = forms.CharField(widget=forms.TextInput(attrs={

@@ -60,7 +60,6 @@ def question_page(request, qid):
         form = AnswerForm()
     else:
         form = AnswerForm(request.POST)
-
         if form.is_valid():
             answer = form.save(request.user.profile, question)
             return redirect(f"{request.path}?page={request.GET.get('page')}#{answer.id}")
@@ -108,7 +107,6 @@ def login_page(request):
     else:
         form = LoginForm(data=request.POST)
         if form.is_valid():
-
             user = auth.authenticate(request, **form.cleaned_data)
             if user is not None:
                 auth.login(request, user)
@@ -126,43 +124,37 @@ def signup_page(request):
     if request.method == 'GET':
         setting_form = RegistrationForm()
     else:
-        setting_form = RegistrationForm(request.POST)
-        avatar_form = AvatarForm(request.FILES)
-        if setting_form.is_valid() and avatar_form.is_valid():
+        setting_form = RegistrationForm(request.POST, request.FILES)
+        if setting_form.is_valid():
             profile = setting_form.save()
-            avatar_form.save(profile)
             auth.login(request, profile.user)
-            return render(request, 'question_page.html', {'form': setting_form})
+            return redirect("/")
         else:
             messages.error(request, 'invalid inputs')
 
-    return render(request, 'signup_page.html', {'form': setting_form})
+    return render(request, 'signup_page.html', {'form': setting_form, })
 
 
 @require_http_methods(['POST', 'GET'])
 def settings_page(request):
     if request.method == 'GET':
         setting_form = SettingsForm(request.user)
-        avatar_form = AvatarForm()
     else:
-        setting_form = SettingsForm(request.user, request.POST)
-        avatar_form = AvatarForm(request.FILES)
-        if setting_form.is_valid() and avatar_form.is_valid():
+        setting_form = SettingsForm(request.user, request.POST, request.FILES)
+        if setting_form.is_valid():
             profile = setting_form.save()
-            avatar_form.save(profile)
 
             auth.login(request, profile.user)
         else:
             messages.error(request, 'invalid inputs')
 
     content = {
-        "setting_form": setting_form,
-        "avatar_form": avatar_form
+        "form": setting_form,
     }
 
     return render(request, 'settings_page.html', content)
 
-# @login_required(login_url="login", redirect_field_name="continue")
+
 @require_http_methods(['POST', 'GET'])
 def like(request):
     messages = []

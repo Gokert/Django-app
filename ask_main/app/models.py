@@ -22,9 +22,6 @@ class ProfileManager(models.Manager):
 
 
 class Profile(models.Model):
-    # def __str__(self):
-    #     return self.user
-
     user = models.OneToOneField(User, related_name='profile', on_delete=models.CASCADE)
     avatar = models.ImageField(null=True, blank=True, upload_to='', default=None)
     objects = ProfileManager()
