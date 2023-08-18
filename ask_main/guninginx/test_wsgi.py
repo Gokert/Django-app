@@ -1,7 +1,6 @@
 import urllib.parse
 from pprint import pformat
 
-HELLO =b"Hello World.\n"
 
 def simple_app(environ, start_response):
     output = []

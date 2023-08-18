@@ -32,10 +32,8 @@ const csrftoken = getCookie('csrftoken');
     fetch(request)
     .then(response_raw => response_raw.json())
     .then(response_json => {
-
         $(this).parent().find("span.like-count").text(response_json.like_count);
         console.log($(this).parent().find("span.like-count").text());
-
     })
     .catch(error => console.error(error));
  });
@@ -57,10 +55,8 @@ const csrftoken = getCookie('csrftoken');
     fetch(request)
     .then(response_raw => response_raw.json())
     .then(response_json => {
-
         $(this).parent().find("span.like-count").text(response_json.like_count);
         console.log($(this).parent().find("span.like-count").text());
-
     })
     .catch(error => console.error(error));
 
@@ -89,18 +85,9 @@ $(".checkinput").on("click", function () {
                     $(this).prop("checked", false);
                     $(this).removeAttr("checked");
                 }
-
                 var prev = $("div").find("#" + response_json.prev_correct).find(".checkinput");
                 prev.removeAttr("checked");
                 prev.prop("checked", false);
-
-                toastr.options = {
-                    "closeButton": true, "debug": false, "newestOnTop": true,
-                    "progressBar": true, "positionClass": "toast-bottom-right", "preventDuplicates": true,
-                    "onclick": null, "showDuration": "300", "hideDuration": "1000", "timeOut": "5000",
-                    "extendedTimeOut": "1000", "showEasing": "swing", "hideEasing": "linear",
-                    "showMethod": "fadeIn", "hideMethod": "fadeOut"
-                };
                 response_json.messages.forEach(msg => toastr.info(msg));
             }
 
