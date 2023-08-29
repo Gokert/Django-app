@@ -1,8 +1,7 @@
 import json
 import time
-from uuid import uuid4
-
 import jwt
+
 from cent import Client
 from django.core.cache import cache
 from django.forms import model_to_dict
@@ -58,8 +57,6 @@ def tag_questions(request, tag):
         'questions': questions,
         'popular_tags': cache.get('rating_tags')
     })
-
-
 
 
 @require_http_methods(['GET', 'POST'])
@@ -232,7 +229,6 @@ def like(request):
             question.save()
             like.save()
 
-        print(messages)
         return JsonResponse({
             'like_count': question.like_count,
             'messages': messages

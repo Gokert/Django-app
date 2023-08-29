@@ -1,6 +1,5 @@
 from django import forms
 from app.models import Profile, Question, Answer, Tag
-import app.models
 from django.contrib.auth.models import User
 
 

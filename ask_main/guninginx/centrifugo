@@ -1,0 +1,2 @@
+sudo docker run -it --ulimit nofile=65536:65536 -p 8001:8000 -d -v /home/andr/Gokert_profile/Django-app/ask_main:/centrifugo --name centrifugo_server centrifugo/centrifugo:v3.1.1 centrifugo --config=test_config.json --admin --log_file=/centrifugo/centrifugo.log
+
