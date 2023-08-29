@@ -1,0 +1,31 @@
+upstream ask {
+        server 127.0.0.1:8000;
+}
+
+server {
+        listen 80 default_server;
+        server_name ask.com;
+
+
+        error_log /var/log/nginx/ask1_error.log;
+        access_log /var/log/nginx/ask1_access.log;
+
+        set $root /home/andr/Gokert_profile/Django-app/ask_main;
+
+        location /static {
+                root $root;
+        }
+
+        location /media {
+                root $root;
+        }
+
+        location / {
+                proxy_pass http://ask;
+                proxy_set_header Host $Host;            
+                proxy_cache ask_zone;
+                proxy_cache_valid 200 302 10m;
+                proxy_cache_valid 400     1m;
+        }
+}
+
