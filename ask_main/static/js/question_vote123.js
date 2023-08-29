@@ -14,15 +14,17 @@ function getCookie(name) {
 }
 const csrftoken = getCookie('csrftoken');
 
+
   $(".like").on('click', function (ev) {
     const request = new Request(
         'http://127.0.0.1:8000/like/',
     {
         headers: {
             'X-CSRFToken': csrftoken,
-            'Content-Type': 'application/x-www-form-urlencoded;charset=UTF-8',
+            'Content-Type': 'application/x-www-form-urlencoded;charset=UTF-8'
         },
         method: 'POST',
+        mode: 'cors',
         body: "essence=" + $(this).data('essence') + "&id=" + $(this).data("id"),
     }
   );
@@ -42,9 +44,10 @@ const csrftoken = getCookie('csrftoken');
     {
         headers: {
             'X-CSRFToken': csrftoken,
-            'Content-Type': 'application/x-www-form-urlencoded;charset=UTF-8',
+            'Content-Type': 'application/x-www-form-urlencoded;charset=UTF-8'
         },
         method: 'POST',
+        mode: 'cors',
         body: "essence=" + $(this).data('essence') + "&id=" + $(this).data("id"),
     }
   );

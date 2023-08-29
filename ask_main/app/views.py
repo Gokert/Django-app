@@ -1,8 +1,16 @@
 import json
+import time
+from uuid import uuid4
+
+import jwt
+from cent import Client
+from django.core.cache import cache
+from django.forms import model_to_dict
 from django.http import JsonResponse
 from django.shortcuts import render, redirect
 from django.core.paginator import Paginator
 from django.contrib import messages
+from faker import Faker
 
 from app.forms import *
 from app.models import *
@@ -10,11 +18,20 @@ from django.contrib import auth
 from django.contrib.auth.decorators import login_required
 from django.views.decorators.http import require_http_methods
 
+from ask.settings import TOKEN_HMAC_SECRET_KEY
+
 questions_per_page = 11
 answer_count = 10
 
+f = Faker()
+
+
 def paginate_objects(objects, page, objects_per_page=20):
     return Paginator(objects, objects_per_page).get_page(page)
+
+def get_user_rating():
+    return Profile.objects.get_top_users()
+
 
 @require_http_methods(['GET'])
 def new_questions(request):
@@ -23,38 +40,42 @@ def new_questions(request):
     return render(request, 'new_questions.html', {
         'questions': questions,
         'popular_tags': Tag.objects.all()[:20],
-        'popular_users': Profile.objects.get_top_users()
+        'popular_users': cache.get('rating'),
 
     })
 
 @require_http_methods(['GET'])
 def hot_questions(request):
-    q = paginate_objects(Question.objects.hot(),
+    questions = paginate_objects(Question.objects.hot(),
                          request.GET.get('page'), 11)
 
     return render(request, 'hot_questions.html', {
-        'questions': q,
+        'questions': questions,
         'popular_tags': Tag.objects.all()[:20],
-        'popular_users': Profile.objects.get_top_users()
+        'popular_users': cache.get('rating'),
     })
 
 
 def tag_questions(request, t):
-    q = paginate_objects(Question.objects.by_tag(t),
+    questions = paginate_objects(Question.objects.by_tag(t),
                          request.GET.get('page'), 11)
 
     return render(request, 'tag_page.html', {
         'tag_title': t,
-        'questions': q,
+        'questions': questions,
         'popular_tags': Tag.objects.all()[:20]
     })
+
+
+client = Client("http://localhost:8001/api", api_key="my_api_key", timeout=1)
 
 @require_http_methods(['GET', 'POST'])
 def question_page(request, qid):
     question = Question.objects.get(pk=qid)
     objects = Answer.objects.by_question(qid)
-    answers = paginate_objects(objects,
-                               request.GET.get('page'), 5)
+    chan_id = f'question_{qid}'
+    answers = paginate_objects(objects, request.GET.get('page'), answer_count)
+    content = {}
 
     if request.method == 'GET':
         form = AnswerForm()
@@ -62,15 +83,26 @@ def question_page(request, qid):
         form = AnswerForm(request.POST)
         if form.is_valid():
             answer = form.save(request.user.profile, question)
-            return redirect(f"{request.path}?page={request.GET.get('page')}#{answer.id}")
+
+            client.publish(chan_id, model_to_dict(answer))
+
+            return redirect("question", qid)
         else:
             messages.error(request, 'something went wrong')
+
+    if request.user.is_authenticated:
+        content = {
+            'server_address': 'ws://127.0.0.1:8001/connection/websocket',
+            'cent_chan': chan_id,
+            'secret_token': jwt.encode({"sub": str(request.user.pk), "exp": int(time.time()) + 10 * 60}, TOKEN_HMAC_SECRET_KEY),
+        }
 
     return render(request, 'question_page.html', {
         'question': question,
         'questions': answers,
         'popular_tags': Tag.objects.all()[:20],
-        'form': form
+        'form': form,
+        'content': content,
     })
 
 
@@ -85,6 +117,7 @@ def logout(request):
 
 
 @require_http_methods(['POST', 'GET'])
+@login_required
 def ask_page(request):
     if request.method == 'GET':
         form = QuestionForm()
@@ -136,6 +169,7 @@ def signup_page(request):
 
 
 @require_http_methods(['POST', 'GET'])
+@login_required
 def settings_page(request):
     if request.method == 'GET':
         setting_form = SettingsForm(request.user)
@@ -156,6 +190,7 @@ def settings_page(request):
 
 
 @require_http_methods(['POST', 'GET'])
+@login_required
 def like(request):
     messages = []
 
@@ -231,6 +266,7 @@ def like(request):
 
 
 @require_http_methods(['POST'])
+@login_required
 def dislike(request):
     messages = []
     print(request.POST)
@@ -306,6 +342,7 @@ def dislike(request):
 
 
 @require_http_methods(['POST', 'GET'])
+@login_required
 def correct_answer(request):
     prev_correct_id = None
     answer = Answer.objects.get_answer(request.POST.get('id'))
