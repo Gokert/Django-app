@@ -10,7 +10,6 @@ from django.http import JsonResponse
 from django.shortcuts import render, redirect
 from django.core.paginator import Paginator
 from django.contrib import messages
-from faker import Faker
 
 from app.forms import *
 from app.models import *
@@ -20,26 +19,20 @@ from django.views.decorators.http import require_http_methods
 
 from ask.settings import TOKEN_HMAC_SECRET_KEY
 
-questions_per_page = 11
-answer_count = 10
-
-f = Faker()
-
+client = Client("http://localhost:8001/api", api_key="my_api_key", timeout=1)
+questions_per_page = 5
+answer_count = 5
 
 def paginate_objects(objects, page, objects_per_page=20):
     return Paginator(objects, objects_per_page).get_page(page)
 
-def get_user_rating():
-    return Profile.objects.get_top_users()
-
-
 @require_http_methods(['GET'])
 def new_questions(request):
-    questions = paginate_objects(Question.objects.new(), request.GET.get('page'), 11)
+    questions = paginate_objects(Question.objects.new(), request.GET.get('page'), questions_per_page)
 
     return render(request, 'new_questions.html', {
         'questions': questions,
-        'popular_tags': Tag.objects.all()[:20],
+        'popular_tags': cache.get('rating_tags'),
         'popular_users': cache.get('rating'),
 
     })
@@ -47,27 +40,27 @@ def new_questions(request):
 @require_http_methods(['GET'])
 def hot_questions(request):
     questions = paginate_objects(Question.objects.hot(),
-                         request.GET.get('page'), 11)
+                         request.GET.get('page'), questions_per_page)
 
     return render(request, 'hot_questions.html', {
         'questions': questions,
-        'popular_tags': Tag.objects.all()[:20],
+        'popular_tags': cache.get('rating_tags'),
         'popular_users': cache.get('rating'),
     })
 
 
-def tag_questions(request, t):
-    questions = paginate_objects(Question.objects.by_tag(t),
-                         request.GET.get('page'), 11)
+def tag_questions(request, tag):
+    questions = paginate_objects(Question.objects.by_tag(tag),
+                         request.GET.get('page'), questions_per_page)
 
     return render(request, 'tag_page.html', {
-        'tag_title': t,
+        'tag_title': tag,
         'questions': questions,
-        'popular_tags': Tag.objects.all()[:20]
+        'popular_tags': cache.get('rating_tags')
     })
 
 
-client = Client("http://localhost:8001/api", api_key="my_api_key", timeout=1)
+
 
 @require_http_methods(['GET', 'POST'])
 def question_page(request, qid):
@@ -100,7 +93,8 @@ def question_page(request, qid):
     return render(request, 'question_page.html', {
         'question': question,
         'questions': answers,
-        'popular_tags': Tag.objects.all()[:20],
+        'popular_tags': cache.get('rating_tags'),
+        'popular_users': cache.get('rating'),
         'form': form,
         'content': content,
     })
@@ -130,7 +124,11 @@ def ask_page(request):
             messages.error(request, 'something went wrong')
             return redirect('ask')
 
-    return render(request, 'ask_page.html', {"form": form})
+    return render(request, 'ask_page.html', {
+        "form": form,
+        'popular_tags': cache.get('rating_tags'),
+        'popular_users': cache.get('rating'),
+    })
 
 
 @require_http_methods(['POST', 'GET'])
@@ -149,7 +147,11 @@ def login_page(request):
         else:
             messages.error(request, 'no valid')
 
-    return render(request, 'login_page.html', {'form': form})
+    return render(request, 'login_page.html', {
+        'form': form,
+        'popular_tags': cache.get('rating_tags'),
+        'popular_users': cache.get('rating'),
+    })
 
 
 @require_http_methods(['POST', 'GET'])
@@ -165,7 +167,11 @@ def signup_page(request):
         else:
             messages.error(request, 'invalid inputs')
 
-    return render(request, 'signup_page.html', {'form': setting_form, })
+    return render(request, 'signup_page.html', {
+        'form': setting_form,
+        'popular_tags': cache.get('rating_tags'),
+        'popular_users': cache.get('rating'),
+    })
 
 
 @require_http_methods(['POST', 'GET'])
@@ -184,6 +190,8 @@ def settings_page(request):
 
     content = {
         "form": setting_form,
+        'popular_tags': cache.get('rating_tags'),
+        'popular_users': cache.get('rating'),
     }
 
     return render(request, 'settings_page.html', content)

@@ -1,10 +1,11 @@
 from django.core.cache import cache
 from django.core.management import BaseCommand
-
-from app.views import get_user_rating
+from app.models import Profile, Tag
 
 
 class Command(BaseCommand):
     def handle(self, *args, **options):
-        users = get_user_rating()
-        cache.set('rating', users, 70)
+        users = Profile.objects.get_top_users()
+        tags = Tag.objects.get_top_tags()
+        cache.set('rating', users, 300)
+        cache.set('rating_tags', tags, 300)

@@ -6,7 +6,7 @@
 	</div>
 	<div class="popular-tags">
 	{% for tag in popular_tags %}
-		<a href="{% url 'tag' tag.title %}">{{ tag.title }}</a>
+		<a href="{% url 'tag' tag.tag_name %}">{{ tag.tag_name }}</a>
 	{% endfor %}
 
 	</div>
