@@ -1,2 +1,3 @@
 #!/bin/bash
-gunicorn -c gun_conf.py hello:application
+gunicorn -c guninginx/gun_conf.py ask.wsgi
+
