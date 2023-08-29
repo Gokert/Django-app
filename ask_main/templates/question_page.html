@@ -16,12 +16,22 @@
 <form method="POST" action="" enctype="">
     {% csrf_token %}
     <div class="form-group">
-        <label for="questionText">Text</label>
         {% bootstrap_form form %}
     </div>
     <button type="submit" class="btn btn-primary">Answer</button>
 </form>
+
+<script src="https://unpkg.com/centrifuge@2.8.5/dist/centrifuge.js"></script>
+<script>
+        var centrifuge = new Centrifuge("{{ content.server_address }}");
+        centrifuge.setToken("{{ content.secret_token }}");
+        console.log("{{ content.cent_chan }}");
+        centrifuge.subscribe("{{content.cent_chan}}", function(message) {
+            console.log(message);
+        });
+        centrifuge.connect();
+
+</script>
 {% endif  %}
-
-
 {% endblock content %}
+

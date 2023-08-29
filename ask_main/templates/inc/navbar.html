@@ -1,14 +1,14 @@
 {% load static %}
 
-<nav class="navbar navbar-expand-md navbar-dark fixed-top bg-dark">
+<nav class="navbar navbar-expand-md navbar-dark fixed-top bg-primary">
     <div class="container">
         <a class="navbar-brand" href="/">ASKING MACHINE</a>
         <form class="form-inline search-form mt-2 md-0 w-50 p-3">
             <input class="form-control mr-sm-2 w-50 p-3" type="text" placeholder="Search">
-            <button class="btn btn-outline-success my-2 my-sm-0" type="submit">SEARCH</button>
+            <button class="btn btn-outline-success my-2 my-sm-0 navbar-brand" type="submit">SEARCH</button>
         </form>
         <form action='\ask'>
-            <button class="btn btn-outline-success my-2 my-sm-0" type="submit">ASK</button>
+            <button class="btn btn-outline-success my-2 my-sm-0 navbar-brand" type="submit">ASK</button>
         </form>
         {% if request.user.is_authenticated %}
             {% include 'inc/navbar_user_authorized.html' %}

@@ -7,7 +7,6 @@ class ProfileManager(models.Manager):
     def get_top_users(self, count=5):
         return self.annotate(answer_count=Count('answer')).order_by('-answer_count')[:count]
 
-
     def get_profile_by_id(self, id):
         try:
             return self.annotate(question_count=Count('question', distinct=True), answer_count=Count('answer', distinct=True)).get(id=id)
@@ -35,6 +34,9 @@ class Profile(models.Model):
 
 
 class TagManager(models.Manager):
+    def get_top_tags(self, count=5):
+        return self.annotate(answer_count=Count('tag_name')).order_by('-tags_count')[:count]
+
     def by_title(self, title_name):
         return self.filter(title=title_name)
 
@@ -43,12 +45,14 @@ class TagManager(models.Manager):
 
 
 class Tag(models.Model):
-    title = models.CharField(max_length=100, unique=True,
-                             verbose_name="Name")
+    tag_name = models.CharField(max_length=100, unique=True,
+                             verbose_name="Tag")
+
+    tags_count = models.IntegerField(default=0, verbose_name='Number of tags')
     objects = TagManager()
 
     def __str__(self):
-        return self.title
+        return self.tag_name
 
     class Meta:
         verbose_name = "Tag"
@@ -63,8 +67,8 @@ class QuestionManager(models.Manager):
     def hot(self):
         return self.order_by("-like_count")
 
-    def by_tag(self, tag_title):
-        return self.filter(tags__title=tag_title)
+    def by_tag(self, tag_name):
+        return self.filter(tags__tag_name=tag_name)
 
     def get_info_questions(self):
         print(Count('likequestion', distinct=True))
@@ -89,7 +93,7 @@ class Question(models.Model):
     user = models.ForeignKey(Profile, on_delete=models.CASCADE)
     tags = models.ManyToManyField('Tag')
     title = models.CharField(max_length=100, verbose_name="Name", unique=True)
-    text = models.TextField(verbose_name="Text")
+    text = models.TextField()
     creation_date = models.DateField(auto_now_add=True, verbose_name="Date of creation")
     like_count = models.IntegerField(default=0, verbose_name='Number of likes')
     answer_count = models.IntegerField(default=0, verbose_name='Number of answers')

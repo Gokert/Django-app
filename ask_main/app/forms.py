@@ -182,7 +182,7 @@ class QuestionForm(forms.ModelForm):
         tags = self.cleaned_data['tags'].split()
 
         for tag in tags:
-            new = Tag.objects.get_or_create(title=tag)
+            new = Tag.objects.get_or_create(tag_name=tag)
             question.tags.add(new[0].id)
         question.save()
 
